@@ -68,8 +68,34 @@ public:
 		d_val += c[rnd].GetV();
 		c.erase(c.begin() + rnd);
 	}
-	~Game()=default;
+	void p_PickCard() {
+		srand(time(NULL));
+		int rnd = 0 + rand() % c.size();
+		player += c[rnd].GetT();
+		p_val += c[rnd].GetV();
+		c.erase(c.begin() + rnd);
+	}
+	void d_PickCard() {
+		srand(time(NULL));
+		int rnd = 0 + rand() % c.size();
+		dealer += c[rnd].GetT();
+		d_val += c[rnd].GetV();
+		c.erase(c.begin() + rnd);
+	}
+	void IsWin() {
+		if (d_val > p_val && d_val <= 21)
+			d_win == true;
+		else if(p_val > d_val && p_val <= 21)
+			p_win == true;
+		else if (p_val == d_val) {
+			d_win == true;
+			p_win == true;
+		}
 
+	}
+	~Game()=default;
+	bool d_win;
+	bool p_win;
 	int d_val = 0;
 	int p_val = 0;
 	string dealer = "";
@@ -87,17 +113,59 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 Game g;
 System::Void Project3::MyForm::button1_Click(System::Object^ sender, System::EventArgs^ e)
 {
+	g.IsWin();
+	if (g.d_win) {
+		MessageBox::Show("Диллер выиграл!", "Lose!");
+	}
+	else if (g.p_win) {
+		MessageBox::Show("Вы выиграли!", "Win!");
+	}
+	else if(g.d_win&&g.p_win){
+		MessageBox::Show("Ничья!", "Tie!");
+	}
+	System::String^ s = gcnew System::String(g.player.c_str());
+	textBox2->Text = s;
+	textBox4->Text = System::Convert::ToString(g.p_val);
 
+	if (g.d_val < 17)
+		g.d_PickCard();
+
+	s = gcnew System::String(g.dealer.c_str());
+	textBox1->Text = s;
+	textBox3->Text = System::Convert::ToString(g.d_val);
+	
 	return System::Void();
 }
 
 System::Void Project3::MyForm::button2_Click(System::Object^ sender, System::EventArgs^ e)
 {
+	g.p_PickCard();
+	System::String^ s = gcnew System::String(g.player.c_str());
+	textBox2->Text = s;
+	textBox4->Text = System::Convert::ToString(g.p_val);
+
+	if (g.d_val < 17)
+		g.d_PickCard();
+
+	s = gcnew System::String(g.dealer.c_str());
+	textBox1->Text = s;
+	textBox3->Text = System::Convert::ToString(g.d_val);
+	g.IsWin();
+	if (g.d_win) {
+		MessageBox::Show("Диллер выиграл!", "Lose!");
+	}
+	else if (g.p_win) {
+		MessageBox::Show("Вы выиграли!", "Win!");
+	}
+	else if (g.d_win && g.p_win) {
+		MessageBox::Show("Ничья!", "Tie!");
+	}
 	return System::Void();
 }
 
 System::Void Project3::MyForm::button3_Click(System::Object^ sender, System::EventArgs^ e)
 {
+
 	return System::Void();
 }
 
@@ -109,5 +177,10 @@ System::Void Project3::MyForm::button4_Click(System::Object^ sender, System::Eve
 	s = gcnew System::String(g.player.c_str());
 	textBox2->Text = s;
 	button4->Enabled = false;
+	button1->Enabled = true;
+	button2->Enabled = true;
+	//button3->Enabled = true;
+	textBox3->Text = System::Convert::ToString(g.d_val);
+	textBox4->Text = System::Convert::ToString(g.p_val);
 	return System::Void();
 }
