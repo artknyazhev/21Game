@@ -83,17 +83,7 @@ public:
 		d_val += c[rnd].GetV();
 		c.erase(c.begin() + rnd);
 	}
-	~Game() {
-		ofstream fout("gamestat.txt",ios::app);
-		if (d_val > p_val && d_val <= 21)
-			fout << "Диллер выиграл\n" << "Было проиграно " << to_string(bet) << " фантиков\n" << "\n------------------------------------\n";
-		else if (p_val > d_val && p_val <= 21)
-			fout << "Вы выиграли\n" << "Было выиграно " << to_string(bet*2) << " фантиков\n" << "\n------------------------------------\n";
-		else if (p_val == d_val) {
-			fout << "Ничья\n" << "Ваши фантики на месте\n" << "\n------------------------------------\n";
-		}
-		fout.close();
-	};
+	~Game() = default;
 	bool d_win;
 	bool p_win;
 	int d_val = 0;
@@ -112,44 +102,54 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 }
 Game g;
 void Check1(int d_val, int p_val) {
+	ofstream fout("gamestat.txt", ios::app);
 	if (d_val == 21 && p_val == 21) {
 		MessageBox::Show("Ничья!", "Tie!");
+		fout << "Ничья\n" << "Ваши фантики на месте\n" << "\n------------------------------------\n";
 		Sleep(1000);
 		g.~Game();
 		Application::Exit();
 	}
 	else if (p_val > 21) {
 		MessageBox::Show("Диллер выиграл!", "Lose!");
+		fout << "Диллер выиграл\n" << "Было проиграно " << to_string(g.bet) << " фантиков\n" << "\n------------------------------------\n";
 		Sleep(1000);
 		g.~Game();
 		Application::Exit();
 	}
 	else if (d_val > 21) {
 		MessageBox::Show("Вы выиграли!", "Win!");
+		fout << "Вы выиграли\n" << "Было выиграно " << to_string(g.bet * 2) << " фантиков\n" << "\n------------------------------------\n";
 		Sleep(1000);
 		g.~Game();
 		Application::Exit();
 	}
+	fout.close();
 }
 void Check2(int d_val, int p_val) {
+	ofstream fout("gamestat.txt", ios::app);
 	if (d_val > p_val && d_val <= 21) {
 		MessageBox::Show("Диллер выиграл!", "Lose!");
+		fout << "Диллер выиграл\n" << "Было проиграно " << to_string(g.bet) << " фантиков\n" << "\n------------------------------------\n";
 		Sleep(1000);
 		g.~Game();
 		Application::Exit();
 	}
 	else if (p_val > d_val && p_val <= 21) {
 		MessageBox::Show("Вы выиграли!", "Win!");
+		fout << "Вы выиграли\n" << "Было выиграно " << to_string(g.bet * 2) << " фантиков\n" << "\n------------------------------------\n";
 		Sleep(1000);
 		g.~Game();
 		Application::Exit();
 	}
 	else if (p_val == d_val || p_val > 21 && d_val>21) {
 		MessageBox::Show("Ничья!", "Tie!");
+		fout << "Ничья\n" << "Ваши фантики на месте\n" << "\n------------------------------------\n";
 		Sleep(1000);
 		g.~Game();
 		Application::Exit();
 	}
+	fout.close();
 }
 
 System::Void Project3::MyForm::button1_Click(System::Object^ sender, System::EventArgs^ e)
