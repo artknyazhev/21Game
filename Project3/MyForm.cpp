@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <time.h>
+#include <fstream>
 using namespace Project3;
 class Card
 {
@@ -82,24 +83,24 @@ public:
 		d_val += c[rnd].GetV();
 		c.erase(c.begin() + rnd);
 	}
-	void IsWin() {
+	~Game() {
+		ofstream fout("gamestat.txt",ios::app);
 		if (d_val > p_val && d_val <= 21)
-			d_win == true;
-		else if(p_val > d_val && p_val <= 21)
-			p_win == true;
+			fout << "Диллер выиграл\n" << "Было проиграно " << to_string(bet) << " фантиков\n" << "\n------------------------------------\n";
+		else if (p_val > d_val && p_val <= 21)
+			fout << "Вы выиграли\n" << "Было выиграно " << to_string(bet*2) << " фантиков\n" << "\n------------------------------------\n";
 		else if (p_val == d_val) {
-			d_win == true;
-			p_win == true;
+			fout << "Ничья\n" << "Ваши фантики на месте\n" << "\n------------------------------------\n";
 		}
-
-	}
-	~Game()=default;
+		fout.close();
+	};
 	bool d_win;
 	bool p_win;
 	int d_val = 0;
 	int p_val = 0;
 	string dealer = "";
 	string player = "";
+	int bet = 0;
 };
 
 [STAThreadAttribute]
@@ -109,20 +110,51 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Application::Run(gcnew MyForm);
 	return 0;
 }
-
 Game g;
+void Check1(int d_val, int p_val) {
+	if (d_val == 21 && p_val == 21) {
+		MessageBox::Show("Ничья!", "Tie!");
+		Sleep(1000);
+		g.~Game();
+		Application::Exit();
+	}
+	else if (p_val > 21) {
+		MessageBox::Show("Диллер выиграл!", "Lose!");
+		Sleep(1000);
+		g.~Game();
+		Application::Exit();
+	}
+	else if (d_val > 21) {
+		MessageBox::Show("Вы выиграли!", "Win!");
+		Sleep(1000);
+		g.~Game();
+		Application::Exit();
+	}
+}
+void Check2(int d_val, int p_val) {
+	if (d_val > p_val && d_val <= 21) {
+		MessageBox::Show("Диллер выиграл!", "Lose!");
+		Sleep(1000);
+		g.~Game();
+		Application::Exit();
+	}
+	else if (p_val > d_val && p_val <= 21) {
+		MessageBox::Show("Вы выиграли!", "Win!");
+		Sleep(1000);
+		g.~Game();
+		Application::Exit();
+	}
+	else if (p_val == d_val || p_val > 21 && d_val>21) {
+		MessageBox::Show("Ничья!", "Tie!");
+		Sleep(1000);
+		g.~Game();
+		Application::Exit();
+	}
+}
+
 System::Void Project3::MyForm::button1_Click(System::Object^ sender, System::EventArgs^ e)
 {
-	g.IsWin();
-	if (g.d_win) {
-		MessageBox::Show("Диллер выиграл!", "Lose!");
-	}
-	else if (g.p_win) {
-		MessageBox::Show("Вы выиграли!", "Win!");
-	}
-	else if(g.d_win&&g.p_win){
-		MessageBox::Show("Ничья!", "Tie!");
-	}
+	
 	System::String^ s = gcnew System::String(g.player.c_str());
 	textBox2->Text = s;
 	textBox4->Text = System::Convert::ToString(g.p_val);
@@ -133,7 +165,8 @@ System::Void Project3::MyForm::button1_Click(System::Object^ sender, System::Eve
 	s = gcnew System::String(g.dealer.c_str());
 	textBox1->Text = s;
 	textBox3->Text = System::Convert::ToString(g.d_val);
-	
+	Check2(g.d_val, g.p_val);
+
 	return System::Void();
 }
 
@@ -150,37 +183,31 @@ System::Void Project3::MyForm::button2_Click(System::Object^ sender, System::Eve
 	s = gcnew System::String(g.dealer.c_str());
 	textBox1->Text = s;
 	textBox3->Text = System::Convert::ToString(g.d_val);
-	g.IsWin();
-	if (g.d_win) {
-		MessageBox::Show("Диллер выиграл!", "Lose!");
-	}
-	else if (g.p_win) {
-		MessageBox::Show("Вы выиграли!", "Win!");
-	}
-	else if (g.d_win && g.p_win) {
-		MessageBox::Show("Ничья!", "Tie!");
-	}
-	return System::Void();
-}
-
-System::Void Project3::MyForm::button3_Click(System::Object^ sender, System::EventArgs^ e)
-{
-
+	Check1(g.d_val, g.p_val);
 	return System::Void();
 }
 
 System::Void Project3::MyForm::button4_Click(System::Object^ sender, System::EventArgs^ e)
 {
+
+	if (textBox5->Text == "") {
+		MessageBox::Show("Ставка равна 0\n Была запущена игра на фантики!", "Ставка!");
+	}else
+		g.bet = Convert::ToInt32(this->textBox5->Text);
+	
+		
+
 	g.StartGame();
 	System::String^ s = gcnew System::String(g.dealer.c_str());
 	textBox1->Text = s;
 	s = gcnew System::String(g.player.c_str());
 	textBox2->Text = s;
 	button4->Enabled = false;
+	textBox5->Enabled = false;
 	button1->Enabled = true;
 	button2->Enabled = true;
-	//button3->Enabled = true;
 	textBox3->Text = System::Convert::ToString(g.d_val);
 	textBox4->Text = System::Convert::ToString(g.p_val);
+	Check1(g.d_val, g.p_val);
 	return System::Void();
 }
